@@ -6,6 +6,7 @@ services:
     image: ghcr.io/geocml/geocml-base-image:main
     ports:
       - "6901:6901"
+      - "80:80"
     environment:
       VNC_PW: password
     shm_size: '512m'

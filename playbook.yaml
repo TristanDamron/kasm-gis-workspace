@@ -118,9 +118,8 @@
         enabled: yes
         name: postgresql
         state: restarted # TODO: add a test here to make sure that there are no exceptions from Postgres after configuration
-
 - 
-  # Create default user
+  # User config 
   hosts: localhost
   connection: local
   tasks:
@@ -129,7 +128,11 @@
         name: default
         password: $6$y5bV.F7ASOab$Mj7q.8PSdc5edv72obVZ0vuEzUuvTvV06uJTZ0SidIxJQ9uSKNRSQWt/UwHy9vmoAM1EdtRwvCegKEsPkWuVd1 # pw: default
         home: /home/kasm-user
-        group: postgres
+        groups: postgres,www-data
+  - name: Set www-data shell to bash
+    ansible.builtin.user:
+        name: www-data
+        shell: /bin/bash
 
 # Three dots indicate the end of a YAML document
 ...

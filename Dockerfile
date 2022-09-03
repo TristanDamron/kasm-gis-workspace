@@ -12,16 +12,37 @@ WORKDIR $HOME
 ADD install_files $HOME/install_files
 RUN apt update && apt install -y sudo
 
-# fix for .gnupg/ permissions when building custom images
+# Install QGIS 
 RUN apt install -y qgis
+
+# Install QGIS Server + Apache
+RUN apt install -y qgis-server apache2 libapache2-mod-fcgid
 
 # Install PostgreSQL, PostGIS, and PG Admin
 RUN apt install -y postgresql && apt install -y postgis 
 RUN curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | apt-key add && sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
 RUN apt install -y pgadmin4-desktop
 
-# Install Python packages with pip
+# Install Python packages with pip 
 RUN apt install -y python3-pip && pip install pint
+
+# Copy QGIS Server conf file to container
+COPY devResources/geocml.demo.conf /etc/apache2/sites-available/geocml.demo.conf
+
+# Create QGIS Server directories
+# TODO: Do this in Ansible, not in the Dockerfile
+RUN mkdir -p /var/log/qgis
+RUN chown www-data:www-data /var/log/qgis
+RUN mkdir -p /home/qgis/qgisserverdb
+RUN chown www-data:www-data /home/qgis && cd /home/qgis && chown -R www-data:www-data *
+RUN a2enmod fcgid
+RUN a2ensite geocml.demo
+RUN service apache2 restart
+# TODO: do we really need to restart here?
+# Replace 127.0.0.1 with the IP of your server.
+RUN sh -c 'echo "127.17.02.2 geocml.demo" >> /etc/hosts'``.
+# Server will be available at http://geocml.demo/cgi-bin/qgis_mapserv.fcgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities
+RUN chown www-data:www-data /var/log/apache2/ && cd /var/log/apache2/ && chown -R www-data:www-data *
 
 # install Ansible per 
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu
