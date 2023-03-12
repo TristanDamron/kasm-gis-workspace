@@ -1,5 +1,5 @@
 ---
-- # Configure apache2
+- # Configure apache2 and QGIS Server
   hosts: localhost
   connection: local
   gather_facts: yes
@@ -15,12 +15,16 @@
         state: present
         name: fcgid
         force: true
+    # TODO: we make the log dir here, but we don't tell Apache to put QGIS
+    # logs here
     - name: Make QGIS Server log dir
       ansible.builtin.command: mkdir -p /var/log/qgis/
     - name: Change QGIS Server log dir's owner to www-data
       ansible.builtin.command: chown www-data:www-data /var/log/qgis
     - name: Make qgisserverdb dir
-      ansible.builtin.command: mkdir -p /home/qgis/qgisserverdb
+      ansible.builtin.command: mkdir -p /var/www/qgisserverdb
     - name: Change qgisserverdb dir's owner to www-data
-      ansible.builtin.command: chown www-data:www-data /home/qgis/qgisserverdb
+      ansible.builtin.command: chown www-data:www-data /var/www/qgisserverdb
+    - name: Link geocml-project.qgz to cgi-bin dir
+      ansible.builtin.command: ln -s /Persistence/geocml-project.qgz /usr/lib/cgi-bin/geocml-project.qgz
 ...

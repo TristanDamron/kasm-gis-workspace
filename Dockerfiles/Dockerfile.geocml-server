@@ -33,6 +33,9 @@ RUN python3 -m pip install -r /var/www/html/portal/requirements.txt
 # Install ping
 RUN apt install -y iputils-ping
 
+# Copy .pg_service.conf to container
+COPY ./build-resources/geocml-server/.pg_service.conf /var/www/.pg_service.conf
+
 ######### Customize Container Here ###########
 ######### End Customizations ###########
 
